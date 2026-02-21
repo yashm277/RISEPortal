@@ -65,3 +65,27 @@ export function getField<T>(record: AirtableRecord, fieldName: string): T | null
   if (value === undefined || value === null) return null;
   return value as T;
 }
+
+export async function createRecord(
+  baseId: string,
+  tableId: string,
+  fields: Record<string, unknown>,
+  token?: string
+): Promise<AirtableRecord> {
+  const url = `${BASE_URL}/${baseId}/${tableId}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token || AIRTABLE_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ fields }),
+  });
+
+  if (!res.ok) {
+    const error = await res.text();
+    throw new Error(`Airtable create error (${res.status}): ${error}`);
+  }
+
+  return res.json();
+}

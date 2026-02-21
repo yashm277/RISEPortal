@@ -2,7 +2,7 @@ import { fetchAllRecords, getField } from "./airtable";
 import type { Conversation } from "./types";
 
 const COUNSELOR_DB_BASE = "appU2cJpIWIHQI4up";
-const CONVERSATIONS_TABLE = "tblzo7zC9Z5EyEZ4z";
+const CONVERSATIONS_TABLE = "tblIg6bBDbLvsvPiJ";
 
 export async function getConversationsForCounselor(
   counselorRecordId: string
@@ -12,12 +12,11 @@ export async function getConversationsForCounselor(
     CONVERSATIONS_TABLE,
     {
       fields: [
-        "Name",
+        "Title",
         "Date",
         "Notes",
-        "Select",
-        "Counselor Database",
-        "Company Name (from Counselor Database)",
+        "Attendee",
+        "Counselor",
       ],
     }
   );
@@ -26,20 +25,15 @@ export async function getConversationsForCounselor(
   const conversations: Conversation[] = [];
 
   for (const record of records) {
-    const linkedCounselors = getField<string[]>(record, "Counselor Database") || [];
+    const linkedCounselors = getField<string[]>(record, "Counselor") || [];
     if (!linkedCounselors.includes(counselorRecordId)) continue;
-
-    const companyNames = getField<string[]>(
-      record,
-      "Company Name (from Counselor Database)"
-    ) || [];
 
     conversations.push({
       id: record.id,
       date: getField<string>(record, "Date") || "",
       notes: getField<string>(record, "Notes") || "",
-      attendee: getField<string>(record, "Select") || "",
-      companyName: companyNames[0] || "",
+      attendee: getField<string>(record, "Attendee") || "",
+      companyName: getField<string>(record, "Title") || "",
     });
   }
 

@@ -1,47 +1,99 @@
-import { notFound } from "next/navigation";
-import Image from "next/image";
+import { Suspense } from "react";
+import { getAllLeads, getAllApplications, getAllCounselorRecords, computeAnalytics } from "@/lib/analytics";
 import { getAllCounselors } from "@/lib/counselors";
-import SearchBar from "@/components/SearchBar";
+import TimePeriodSelector from "@/components/dashboard/TimePeriodSelector";
+import FunnelOverviewCards from "@/components/dashboard/FunnelOverviewCards";
+import PendingActionsChart from "@/components/dashboard/PendingActionsChart";
+import LeadsVsApplicationsChart from "@/components/dashboard/LeadsVsApplicationsChart";
+import StageEntriesChart from "@/components/dashboard/StageEntriesChart";
+import InterviewsChart from "@/components/dashboard/InterviewsChart";
+import ConversionFunnel from "@/components/dashboard/ConversionFunnel";
+import DropOffChart from "@/components/dashboard/DropOffChart";
+import VelocityChart from "@/components/dashboard/VelocityChart";
+import TopCounselorsChart from "@/components/dashboard/TopCounselorsChart";
+import CounselorActivityChart from "@/components/dashboard/CounselorActivityChart";
 
 export default async function DashboardPage({
-  params,
+  searchParams,
 }: {
-  params: Promise<{ secret: string }>;
+  searchParams: Promise<{ period?: string }>;
 }) {
-  const { secret } = await params;
+  const { period = "30d" } = await searchParams;
 
-  if (secret !== process.env.DASHBOARD_SECRET) {
-    notFound();
+  const [leads, applications, counselorRecords, counselors] = await Promise.all([
+    getAllLeads(),
+    getAllApplications(),
+    getAllCounselorRecords(),
+    getAllCounselors(),
+  ]);
+
+  // Build counselorId → company name map
+  const counselorNameMap = new Map<string, string>();
+  for (const c of counselors) {
+    counselorNameMap.set(c.counselorId, c.companyName);
   }
 
-  const counselors = await getAllCounselors();
-
-  const counselorOptions = counselors.map((c) => ({
-    companyName: c.companyName,
-    slug: c.slug,
-    counselorId: c.counselorId,
-    poc: c.poc,
-    followUpStatus: c.followUpStatus,
-  }));
+  const analytics = computeAnalytics(leads, applications, counselorRecords, counselorNameMap, period);
 
   return (
-    <div className="min-h-screen bg-rise-cream flex flex-col items-center justify-center px-4">
-      <div className="text-center mb-10">
-        <Image
-          src="/rise-logo.png"
-          alt="RISE Logo"
-          width={80}
-          height={80}
-          className="mx-auto mb-6 object-contain"
-        />
-        <h1 className="text-3xl font-bold text-rise-black font-heading">
-          Partner Dashboard
-        </h1>
-        <p className="text-rise-brown mt-2">
-          Search for a counselor partner to view their pipeline.
-        </p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+      {/* Time Period Selector */}
+      <div className="sticky top-14 z-40 bg-rise-cream py-3 -mx-4 px-4 sm:-mx-6 sm:px-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-lg font-bold text-rise-black font-heading">Analytics Dashboard</h1>
+          <Suspense>
+            <TimePeriodSelector />
+          </Suspense>
+        </div>
       </div>
-      <SearchBar counselors={counselorOptions} />
+
+      {/* Section 1: Pipeline Snapshot */}
+      <section className="mt-6">
+        <h2 className="text-xs font-semibold text-rise-brown uppercase tracking-wide mb-3">Pipeline Snapshot</h2>
+        <FunnelOverviewCards
+          stageCounts={analytics.stageCounts}
+          stageCountsPrevious={analytics.stageCountsPrevious}
+        />
+        <div className="mt-4">
+          <PendingActionsChart subStageCounts={analytics.subStageCounts} />
+        </div>
+      </section>
+
+      {/* Section 2: Flow Over Time */}
+      <section className="mt-8">
+        <h2 className="text-xs font-semibold text-rise-brown uppercase tracking-wide mb-3">Flow Over Time</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <LeadsVsApplicationsChart data={analytics.leadsOverTime} />
+          <StageEntriesChart data={analytics.stageEntriesOverTime} />
+        </div>
+        <div className="mt-4">
+          <InterviewsChart data={analytics.interviewsOverTime} />
+        </div>
+      </section>
+
+      {/* Section 3: Conversion & Drop-off */}
+      <section className="mt-8">
+        <h2 className="text-xs font-semibold text-rise-brown uppercase tracking-wide mb-3">Conversion & Drop-off</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <ConversionFunnel data={analytics.conversionFunnel} />
+          <DropOffChart data={analytics.dropOffs} />
+        </div>
+      </section>
+
+      {/* Section 4: Velocity */}
+      <section className="mt-8">
+        <h2 className="text-xs font-semibold text-rise-brown uppercase tracking-wide mb-3">Velocity</h2>
+        <VelocityChart data={analytics.velocity} />
+      </section>
+
+      {/* Section 5: Counselor Insights */}
+      <section className="mt-8 pb-8">
+        <h2 className="text-xs font-semibold text-rise-brown uppercase tracking-wide mb-3">Counselor Insights</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <TopCounselorsChart data={analytics.topCounselors} />
+          <CounselorActivityChart data={analytics.counselorActivity} />
+        </div>
+      </section>
     </div>
   );
 }
