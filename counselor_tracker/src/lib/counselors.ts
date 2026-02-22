@@ -32,6 +32,8 @@ export async function getAllCounselors(): Promise<Counselor[]> {
       "Country",
       "Expected Number",
       "Follow Up Status",
+      "Student Interview",
+      "MOU",
     ],
   });
 
@@ -51,6 +53,11 @@ export async function getAllCounselors(): Promise<Counselor[]> {
         country: getField<string>(record, "Country") || "",
         capacity: getField<string>(record, "Expected Number") || "",
         followUpStatus: getField<string>(record, "Follow Up Status") || "",
+        studentInterview: getField<string>(record, "Student Interview") || "",
+        mouUrl: (() => {
+          const attachments = getField<{ url: string }[]>(record, "MOU");
+          return attachments && attachments.length > 0 ? attachments[0].url : null;
+        })(),
         slug: generateSlug(companyName),
       };
     })

@@ -89,3 +89,28 @@ export async function createRecord(
 
   return res.json();
 }
+
+export async function updateRecord(
+  baseId: string,
+  tableId: string,
+  recordId: string,
+  fields: Record<string, unknown>,
+  token?: string
+): Promise<AirtableRecord> {
+  const url = `${BASE_URL}/${baseId}/${tableId}/${recordId}`;
+  const res = await fetch(url, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token || AIRTABLE_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ fields }),
+  });
+
+  if (!res.ok) {
+    const error = await res.text();
+    throw new Error(`Airtable update error (${res.status}): ${error}`);
+  }
+
+  return res.json();
+}

@@ -7,6 +7,7 @@ import FunnelStats from "@/components/FunnelStats";
 import StudentTable from "@/components/StudentTable";
 import ConversationLog from "@/components/ConversationLog";
 import AddConversationForm from "@/components/AddConversationForm";
+import CounselorDetails from "@/components/CounselorDetails";
 
 export default async function PartnerPage({
   params,
@@ -41,6 +42,11 @@ export default async function PartnerPage({
           </div>
         )}
         <PartnerHeader counselor={counselor} />
+        <CounselorDetails
+          counselor={counselor}
+          isCeoView={isCeoView}
+          secret={process.env.DASHBOARD_SECRET!}
+        />
         <FunnelStats counts={funnelCounts} total={total} />
         <StudentTable students={students} />
         {isCeoView && (

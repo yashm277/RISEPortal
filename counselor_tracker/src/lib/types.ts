@@ -13,6 +13,8 @@ export interface Counselor {
   country: string;
   capacity: string; // Expected Number field
   followUpStatus: string;
+  studentInterview: string;
+  mouUrl: string | null;
   slug: string; // auto-generated from company name
 }
 

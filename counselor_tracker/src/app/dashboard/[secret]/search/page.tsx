@@ -1,8 +1,14 @@
 import Image from "next/image";
 import { getAllCounselors } from "@/lib/counselors";
 import SearchBar from "@/components/SearchBar";
+import AddPartnerForm from "@/components/AddPartnerForm";
 
-export default async function SearchPage() {
+export default async function SearchPage({
+  params,
+}: {
+  params: Promise<{ secret: string }>;
+}) {
+  const { secret } = await params;
   const counselors = await getAllCounselors();
 
   const counselorOptions = counselors.map((c) => ({
@@ -31,6 +37,7 @@ export default async function SearchPage() {
         </p>
       </div>
       <SearchBar counselors={counselorOptions} />
+      <AddPartnerForm secret={secret} />
     </div>
   );
 }
