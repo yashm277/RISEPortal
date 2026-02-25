@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import type { MappedRow } from "./page";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -28,7 +29,9 @@ function matchesCohort(r: MappedRow, cohort: CohortFilter): boolean {
   return true;
 }
 
-export default function AirtableInsightsClient({ rows }: { rows: MappedRow[] }) {
+export default function AirtableInsightsClient({ rows, days }: { rows: MappedRow[]; days: 30 | 60 | 90 }) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [seqFilter, setSeqFilter] = useState("All");
@@ -144,13 +147,28 @@ export default function AirtableInsightsClient({ rows }: { rows: MappedRow[] }) 
             AWA1 / AWA2 / AWA3 / Call Payment applicants with acceptance sent in the last 30 days × Mixmax
           </p>
         </div>
-        <span className="text-xs text-rise-brown">{total} applicants</span>
+        {/* Day-range pills */}
+        <div className="flex gap-1">
+          {([30, 60, 90] as const).map((d) => (
+            <button
+              key={d}
+              onClick={() => router.push(`${pathname}?days=${d}`)}
+              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                days === d
+                  ? "bg-rise-black text-white border-rise-black"
+                  : "bg-white text-rise-brown border-gray-200 hover:border-gray-400"
+              }`}
+            >
+              {d}d
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Overview cards — clickable cohort filters */}
       <section className="mb-6">
         <h2 className="text-xs font-semibold text-rise-brown uppercase tracking-wide mb-3">
-          Overview — last 30 days
+          Overview — last {days} days · {total} applicants
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {COHORT_CARDS.map(({ key, label, count, bg, text, ring }) => (
