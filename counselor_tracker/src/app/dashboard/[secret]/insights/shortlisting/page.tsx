@@ -72,10 +72,13 @@ export default async function ShortlistingInsightsPage({
     replied: number;
   }[] = [];
 
+  let mixmaxCachedAt: string | null = null;
+
   try {
     const res = await fetch(`${baseUrl}/api/mixmax`, { cache: "no-store" });
     if (res.ok) {
       const data = await res.json();
+      mixmaxCachedAt = data.cachedAt ?? null;
       allMixmaxRecipients = (data.recipients ?? [])
         .filter((r: { sequenceName?: string }) =>
           SHORTLISTING_SEQUENCES.includes(r.sequenceName ?? "")
@@ -139,5 +142,5 @@ export default async function ShortlistingInsightsPage({
     }
   }
 
-  return <ShortlistingInsightsClient rows={rows} days={days} />;
+  return <ShortlistingInsightsClient rows={rows} days={days} mixmaxCachedAt={mixmaxCachedAt} />;
 }

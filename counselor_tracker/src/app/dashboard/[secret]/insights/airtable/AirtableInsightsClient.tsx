@@ -29,7 +29,16 @@ function matchesCohort(r: MappedRow, cohort: CohortFilter): boolean {
   return true;
 }
 
-export default function AirtableInsightsClient({ rows, days }: { rows: MappedRow[]; days: 30 | 60 | 90 }) {
+function formatCachedAt(iso: string | null): string {
+  if (!iso) return "Unknown";
+  return new Date(iso).toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "2-digit", month: "short", year: "numeric",
+    hour: "2-digit", minute: "2-digit", hour12: true,
+  }) + " IST";
+}
+
+export default function AirtableInsightsClient({ rows, days, mixmaxCachedAt }: { rows: MappedRow[]; days: 30 | 60 | 90; mixmaxCachedAt: string | null }) {
   const router = useRouter();
   const pathname = usePathname();
   const [search, setSearch] = useState("");
@@ -164,6 +173,10 @@ export default function AirtableInsightsClient({ rows, days }: { rows: MappedRow
           ))}
         </div>
       </div>
+
+      <p className="text-xs text-rise-brown/60 mb-6">
+        Mixmax last fetched: <span className="font-medium text-rise-brown">{formatCachedAt(mixmaxCachedAt)}</span>
+      </p>
 
       {/* Overview cards — clickable cohort filters */}
       <section className="mb-6">
