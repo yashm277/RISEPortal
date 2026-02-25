@@ -60,16 +60,31 @@ export default async function MixmaxInsightsPage() {
     );
   }
 
-  const { totals, recipients } = data;
+  const { totals, recipients, cachedAt } = data;
+
+  const fetchedLabel = cachedAt
+    ? new Date(cachedAt).toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }) + " IST"
+    : "Unknown";
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-2">
         <h1 className="text-lg font-bold text-rise-black font-heading">Mixmax Insights</h1>
         <span className="text-xs text-rise-brown bg-white border border-gray-200 rounded-md px-3 py-1.5">
           Powered by Mixmax · All sequences
         </span>
       </div>
+      <p className="text-xs text-rise-brown/60 mb-6">
+        Mixmax last fetched: <span className="font-medium text-rise-brown">{fetchedLabel}</span>
+      </p>
 
       <section>
         <h2 className="text-xs font-semibold text-rise-brown uppercase tracking-wide mb-3">

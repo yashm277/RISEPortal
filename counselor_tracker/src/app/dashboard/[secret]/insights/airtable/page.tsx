@@ -75,10 +75,13 @@ export default async function AirtableInsightsPage({
     replied: number;
   }[] = [];
 
+  let mixmaxCachedAt: string | null = null;
+
   try {
     const res = await fetch(`${baseUrl}/api/mixmax`, { cache: "no-store" });
     if (res.ok) {
       const data = await res.json();
+      mixmaxCachedAt = data.cachedAt ?? null;
       allMixmaxRecipients = (data.recipients ?? [])
         .filter((r: { sequenceName?: string }) =>
           ACCEPTANCE_SEQUENCES.includes(r.sequenceName ?? "")
@@ -143,5 +146,5 @@ export default async function AirtableInsightsPage({
     }
   }
 
-  return <AirtableInsightsClient rows={rows} days={days} />;
+  return <AirtableInsightsClient rows={rows} days={days} mixmaxCachedAt={mixmaxCachedAt} />;
 }
