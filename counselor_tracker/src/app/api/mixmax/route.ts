@@ -137,7 +137,7 @@ async function fetchFromMixmax(apiKey: string): Promise<MixmaxInsightsResponse> 
   await Promise.all(
     sequences.map(async (seq) => {
       let offset = 0;
-      const limit = 100;
+      const limit = 50;
       while (true) {
         const recipients: MixmaxApiRecipient[] = await mixmaxGet(
           `/sequences/${seq._id}/recipients?limit=${limit}&offset=${offset}`,
