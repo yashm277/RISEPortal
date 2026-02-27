@@ -142,5 +142,5 @@ export default async function ShortlistingInsightsPage({
     }
   }
 
-  return <ShortlistingInsightsClient rows={rows} days={days} mixmaxCachedAt={mixmaxCachedAt} />;
+  return <ShortlistingInsightsClient rows={rows} days={days} mixmaxCachedAt={mixmaxCachedAt} fetchedAt={new Date().toISOString()} />;
 }

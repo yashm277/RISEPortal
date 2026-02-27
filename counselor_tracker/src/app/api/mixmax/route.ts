@@ -50,7 +50,7 @@ function readCache(): CacheFile | null {
   }
 }
 
-function writeCache(data: MixmaxInsightsResponse): void {
+export function writeCache(data: MixmaxInsightsResponse): void {
   const entry: CacheFile = { fetchedAt: new Date().toISOString(), data };
   fs.writeFileSync(CACHE_FILE, JSON.stringify(entry), "utf-8");
 }
@@ -117,7 +117,7 @@ interface MixmaxSequence {
   name: string;
 }
 
-async function fetchFromMixmax(apiKey: string): Promise<MixmaxInsightsResponse> {
+export async function fetchFromMixmax(apiKey: string): Promise<MixmaxInsightsResponse> {
   // 1. Fetch all sequences (paginate if needed)
   const sequences: MixmaxSequence[] = [];
   let cursor: string | null = null;

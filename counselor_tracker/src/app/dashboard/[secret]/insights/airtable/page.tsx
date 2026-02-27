@@ -146,5 +146,5 @@ export default async function AirtableInsightsPage({
     }
   }
 
-  return <AirtableInsightsClient rows={rows} days={days} mixmaxCachedAt={mixmaxCachedAt} />;
+  return <AirtableInsightsClient rows={rows} days={days} mixmaxCachedAt={mixmaxCachedAt} fetchedAt={new Date().toISOString()} />;
 }

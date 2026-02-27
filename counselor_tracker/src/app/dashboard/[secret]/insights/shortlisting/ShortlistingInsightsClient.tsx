@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import type { MappedRow } from "./page";
+import RefreshButton from "@/app/dashboard/[secret]/insights/mixmax/RefreshButton";
 
 const STATUS_COLORS: Record<string, string> = {
   SWA1: "bg-sky-50 text-sky-700",
@@ -38,7 +39,7 @@ function formatCachedAt(iso: string | null): string {
   }) + " IST";
 }
 
-export default function ShortlistingInsightsClient({ rows, days, mixmaxCachedAt }: { rows: MappedRow[]; days: 30 | 60 | 90; mixmaxCachedAt: string | null }) {
+export default function ShortlistingInsightsClient({ rows, days, mixmaxCachedAt, fetchedAt }: { rows: MappedRow[]; days: 30 | 60 | 90; mixmaxCachedAt: string | null; fetchedAt: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const [search, setSearch] = useState("");
@@ -142,33 +143,39 @@ export default function ShortlistingInsightsClient({ rows, days, mixmaxCachedAt 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-12">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-2">
         <div>
           <h1 className="text-lg font-bold text-rise-black font-heading">Shortlisting Email Audit</h1>
           <p className="text-xs text-rise-brown mt-0.5">
             SWA1 / SWA2 / SWA3 / Call Shortlisting applicants with shortlisting email sent in the last 30 days × Mixmax
           </p>
         </div>
-        {/* Day-range pills */}
-        <div className="flex gap-1">
-          {([30, 60, 90] as const).map((d) => (
-            <button
-              key={d}
-              onClick={() => router.push(`${pathname}?days=${d}`)}
-              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
-                days === d
-                  ? "bg-rise-black text-white border-rise-black"
-                  : "bg-white text-rise-brown border-gray-200 hover:border-gray-400"
-              }`}
-            >
-              {d}d
-            </button>
-          ))}
+        <div className="flex items-center gap-2">
+          {/* Day-range pills */}
+          <div className="flex gap-1">
+            {([30, 60, 90] as const).map((d) => (
+              <button
+                key={d}
+                onClick={() => router.push(`${pathname}?days=${d}`)}
+                className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                  days === d
+                    ? "bg-rise-black text-white border-rise-black"
+                    : "bg-white text-rise-brown border-gray-200 hover:border-gray-400"
+                }`}
+              >
+                {d}d
+              </button>
+            ))}
+          </div>
+          <RefreshButton apiPath="/api/refresh/shortlisting" />
         </div>
       </div>
 
       <p className="text-xs text-rise-brown/60 mb-6">
-        Mixmax last fetched: <span className="font-medium text-rise-brown">{formatCachedAt(mixmaxCachedAt)}</span>
+        Last updated: <span className="font-medium text-rise-brown">{formatCachedAt(fetchedAt)}</span>
+        {mixmaxCachedAt && (
+          <> · Mixmax: <span className="font-medium text-rise-brown">{formatCachedAt(mixmaxCachedAt)}</span></>
+        )}
       </p>
 
       {/* Overview cards — clickable cohort filters */}

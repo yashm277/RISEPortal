@@ -141,5 +141,5 @@ export default async function ParentsDiscoveryBookingPage({
     }
   }
 
-  return <ParentsDiscoveryBookingClient rows={rows} days={days} mixmaxCachedAt={mixmaxCachedAt} />;
+  return <ParentsDiscoveryBookingClient rows={rows} days={days} mixmaxCachedAt={mixmaxCachedAt} fetchedAt={new Date().toISOString()} />;
 }

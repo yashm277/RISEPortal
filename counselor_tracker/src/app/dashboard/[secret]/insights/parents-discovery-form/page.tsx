@@ -141,5 +141,5 @@ export default async function ParentsDiscoveryFormPage({
     }
   }
 
-  return <ParentsDiscoveryFormClient rows={rows} days={days} mixmaxCachedAt={mixmaxCachedAt} />;
+  return <ParentsDiscoveryFormClient rows={rows} days={days} mixmaxCachedAt={mixmaxCachedAt} fetchedAt={new Date().toISOString()} />;
 }
